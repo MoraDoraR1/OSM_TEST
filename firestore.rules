@@ -2,15 +2,29 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    // 이전 반응속도 게임의 기록 (더 이상 앱에서 사용하지 않음, 과거 데이터 보존용)
     match /scores/{scoreId} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasOnly(['ms', 'nickname', 'createdAt'])
+                    && request.resource.data.ms is number
+                    && request.resource.data.ms > 0
+                    && request.resource.data.ms < 20000
+                    && request.resource.data.nickname is string
+                    && request.resource.data.nickname.size() > 0
+                    && request.resource.data.nickname.size() <= 20;
+      allow update, delete: if false;
+    }
+
+    // 7.77초 타이밍 게임의 기록 (ms = 목표 시각과의 차이)
+    match /target_scores/{scoreId} {
       // 랭킹 조회는 누구나 가능 (단순 오픈)
       allow read: if true;
 
       // 기록 생성은 형식만 검증하고 허용 (단순 오픈)
       allow create: if request.resource.data.keys().hasOnly(['ms', 'nickname', 'createdAt'])
                     && request.resource.data.ms is number
-                    && request.resource.data.ms > 0
-                    && request.resource.data.ms < 20000
+                    && request.resource.data.ms >= 0
+                    && request.resource.data.ms <= 10000
                     && request.resource.data.nickname is string
                     && request.resource.data.nickname.size() > 0
                     && request.resource.data.nickname.size() <= 20;
