@@ -7,7 +7,8 @@ const STATE = {
   RESULT: "result",
 };
 
-const TARGET_MS = 7770;
+const TARGET_MS = 7777.77;
+const HIDE_AFTER_MS = 5000;
 const MAX_MS = 10000;
 
 const gameEl = document.getElementById("game");
@@ -18,7 +19,6 @@ const resultTimeEl = document.getElementById("resultTime");
 const nicknameForm = document.getElementById("nicknameForm");
 const nicknameInput = document.getElementById("nicknameInput");
 const saveStatus = document.getElementById("saveStatus");
-const leaderboard = document.getElementById("leaderboard");
 const leaderboardList = document.getElementById("leaderboardList");
 
 let state = STATE.IDLE;
@@ -49,7 +49,6 @@ function clearTimers() {
 
 function resetResultUI() {
   resultBox.classList.add("hidden");
-  leaderboard.classList.add("hidden");
   nicknameForm.reset();
   saveStatus.textContent = "";
 }
@@ -59,19 +58,24 @@ function toIdle() {
   resetResultUI();
   timerDisplayEl.classList.add("hidden");
   setState(STATE.IDLE);
-  messageEl.textContent = "클릭하면 타이머가 시작됩니다. 7.77초에 최대한 가깝게 다시 클릭해 멈추세요.";
+  messageEl.textContent =
+    "클릭하면 타이머가 시작됩니다. 5초 이후에는 숫자가 사라지니 감으로 7.77777초에 맞춰 다시 클릭해 멈추세요.";
 }
 
 function tick() {
   const elapsed = performance.now() - startedAt;
-  timerDisplayEl.textContent = formatSeconds(Math.min(elapsed, MAX_MS));
+  if (elapsed >= HIDE_AFTER_MS) {
+    timerDisplayEl.classList.add("hidden");
+    return;
+  }
+  timerDisplayEl.textContent = formatSeconds(elapsed);
   rafId = requestAnimationFrame(tick);
 }
 
 function startRunning() {
   resetResultUI();
   setState(STATE.RUNNING);
-  messageEl.textContent = "지금 클릭해서 7.77초에 맞춰 멈추세요!";
+  messageEl.textContent = "지금 클릭해서 7.77777초에 맞춰 멈추세요! (5초 이후에는 숫자가 사라집니다)";
   timerDisplayEl.classList.remove("hidden");
   timerDisplayEl.textContent = formatSeconds(0);
 
@@ -86,7 +90,7 @@ function startRunning() {
 function showGameOver() {
   clearTimers();
   setState(STATE.GAME_OVER);
-  timerDisplayEl.textContent = formatSeconds(MAX_MS);
+  timerDisplayEl.classList.add("hidden");
   messageEl.textContent = "10초가 지났습니다. 게임 오버! 다시 시도하려면 클릭하세요.";
 }
 
@@ -98,13 +102,12 @@ async function showResult(elapsedMs) {
   setState(STATE.RESULT);
   messageEl.textContent = "";
   timerDisplayEl.classList.add("hidden");
-  resultTimeEl.textContent = `${formatSeconds(elapsedMs)} (7.77초와 ${(diffMs / 1000).toFixed(3)}초 차이)`;
+  resultTimeEl.textContent = `${formatSeconds(elapsedMs)} (7.77777초와 ${(diffMs / 1000).toFixed(3)}초 차이)`;
   resultBox.classList.remove("hidden");
   await renderLeaderboard();
 }
 
 async function renderLeaderboard() {
-  leaderboard.classList.remove("hidden");
   leaderboardList.innerHTML = "<li>불러오는 중...</li>";
   try {
     const top = await getTop(10);
@@ -164,3 +167,5 @@ nicknameForm.addEventListener("submit", async (event) => {
     console.error(err);
   }
 });
+
+renderLeaderboard();
