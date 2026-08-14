@@ -28,6 +28,26 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
+      - name: Generate js/firebase-config.js from secrets
+        env:
+          API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
+          AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
+          PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
+          STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
+          MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
+          APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
+        run: |
+          cat > js/firebase-config.js << EOF
+          export const firebaseConfig = {
+            apiKey: "${API_KEY}",
+            authDomain: "${AUTH_DOMAIN}",
+            projectId: "${PROJECT_ID}",
+            storageBucket: "${STORAGE_BUCKET}",
+            messagingSenderId: "${MESSAGING_SENDER_ID}",
+            appId: "${APP_ID}",
+          };
+          EOF
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
