@@ -1,16 +1,17 @@
-# 7.77초 타이밍 게임
+# 7.77777초 타이밍 게임
 
-클릭하면 0초부터 타이머가 시작되어 ms 단위까지 실시간으로 카운트업됩니다. 목표는 7.77초에
-최대한 가깝게 다시 클릭해서 멈추는 것이며, 초록 화면에 걸린 시간과 목표와의 차이, 랭킹(TOP 10,
-차이가 작을수록 상위)을 보여주고 닉네임을 입력하면 Firebase에 기록을 저장합니다. 10초가 넘도록
-멈추지 않으면 게임 오버 처리 후 처음 화면으로 돌아갑니다.
+클릭하면 0초부터 타이머가 시작되어 ms 단위까지 실시간으로 카운트업되지만, 5초가 지나면 숫자가
+사라져서 이후에는 감으로 목표 시각(7.77777초)에 맞춰 다시 클릭해 멈춰야 합니다. 초록 화면에
+걸린 시간과 목표와의 차이를 보여주고, 화면 우측 상단에는 랭킹(TOP 10, 차이가 작을수록 상위)이
+항상 떠 있습니다. 닉네임을 입력하면 Firebase에 기록을 저장합니다. 10초가 넘도록 멈추지 않으면
+게임 오버 처리 후 처음 화면으로 돌아갑니다.
 
 ## 폴더 구조
 
 ```
-index.html            게임 화면 마크업
-css/style.css         상태별(파랑/초록/주황) 스타일
-js/game.js            게임 상태 전이 및 목표 시각(7.77초) 근접도 측정 로직
+index.html            게임 화면 마크업 (랭킹 패널 포함)
+css/style.css          상태별(파랑/초록/주황) 스타일 및 우측 상단 랭킹 패널 스타일
+js/game.js            게임 상태 전이 및 목표 시각(7.77777초) 근접도 측정 로직
 js/firebase.js         DB 접근 함수 saveScore(ms, nickname) / getTop(n) (ms = 목표 시각과의 차이)
 js/firebase-config.js  Firebase 프로젝트 설정값 (로컬용 placeholder, 배포 시 Actions secret으로 자동 생성)
 firestore.rules        Firestore 보안 규칙
@@ -31,9 +32,10 @@ firebase.json / firestore.indexes.json  Firebase CLI 설정
 5. 보안 규칙을 반영합니다. 둘 중 하나를 선택하세요.
    - Firebase CLI 사용: `firebase login` 후 `firebase deploy --only firestore:rules`
    - 콘솔에서 직접: Firestore Database > 규칙 탭에 `firestore.rules` 내용을 붙여넣고 게시
-   - 기록은 `target_scores` 컬렉션에 저장됩니다(예전 반응속도 게임의 `scores` 컬렉션과는 분리).
-     이미 `scores` 기준으로 규칙을 게시해두셨다면, `target_scores` 규칙이 추가된 최신
-     `firestore.rules` 내용으로 다시 게시해야 새 게임의 저장/조회가 동작합니다.
+   - 기록은 `target_scores_v2` 컬렉션에 저장됩니다. 목표 시각이 7.77초 → 7.77777초로 바뀌면서
+     이전 `scores`, `target_scores` 컬렉션과는 호환되지 않아 컬렉션을 새로 분리했습니다(랭킹 초기화 효과).
+     `target_scores_v2` 규칙이 추가된 최신 `firestore.rules` 내용으로 다시 게시해야
+     저장/조회가 동작합니다.
 
 Firebase config 값은 정적 웹앱 특성상 최종 배포 결과물(클라이언트 코드)에는 그대로 노출되지만,
 위 보안 규칙이 기록 형식(nickname 길이, ms 범위 등)만 검증하고 수정/삭제는 막아두었으므로

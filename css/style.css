@@ -97,21 +97,33 @@ h1 {
   min-height: 1.2em;
 }
 
-#leaderboard {
-  margin-top: 1.5rem;
+.leaderboard-panel {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  width: 220px;
   text-align: left;
+  color: #fff;
   cursor: default;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(4px);
+  border-radius: 10px;
+  padding: 12px 16px;
+  z-index: 10;
 }
 
-#leaderboard h2 {
-  font-size: 1.1rem;
+.leaderboard-panel h2 {
+  font-size: 1rem;
   text-align: center;
+  margin: 0 0 8px;
 }
 
 #leaderboardList {
   padding-left: 1.2rem;
+  margin: 0;
 }
 
 #leaderboardList li {
   margin-bottom: 2px;
+  font-size: 0.9rem;
 }

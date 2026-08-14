@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>7.77초 타이밍 게임</title>
+  <title>7.77777초 타이밍 게임</title>
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
   <div id="game" class="screen state-idle">
     <div class="content">
-      <h1>7.77초에 맞춰라</h1>
-      <p id="message">클릭하면 타이머가 시작됩니다. 7.77초에 최대한 가깝게 다시 클릭해 멈추세요.</p>
+      <h1>7.77777초에 맞춰라</h1>
+      <p id="message">클릭하면 타이머가 시작됩니다. 5초 이후에는 숫자가 사라지니 감으로 7.77777초에 맞춰 다시 클릭해 멈추세요.</p>
       <p id="timerDisplay" class="hidden">0.000초</p>
 
       <div id="resultBox" class="hidden">
@@ -21,13 +21,13 @@
         </form>
         <p id="saveStatus"></p>
       </div>
-
-      <div id="leaderboard" class="hidden">
-        <h2>7.77초에 가장 가까운 기록 TOP 10</h2>
-        <ol id="leaderboardList"></ol>
-      </div>
     </div>
   </div>
+
+  <aside id="leaderboard" class="leaderboard-panel">
+    <h2>TOP 10</h2>
+    <ol id="leaderboardList"></ol>
+  </aside>
 
   <script type="module" src="js/game.js"></script>
 </body>
