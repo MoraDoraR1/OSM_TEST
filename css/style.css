@@ -1,0 +1,114 @@
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+.screen {
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  user-select: none;
+}
+
+.content {
+  text-align: center;
+  color: #fff;
+  padding: 20px;
+  max-width: 420px;
+}
+
+h1 {
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+}
+
+#message {
+  font-size: 1.2rem;
+}
+
+.state-idle,
+.state-waiting {
+  background-color: #1e63e0;
+}
+
+.state-ready {
+  background-color: #e02b2b;
+}
+
+.state-too-early {
+  background-color: #e08a1e;
+}
+
+.state-result {
+  background-color: #1fa855;
+}
+
+.hidden {
+  display: none;
+}
+
+#resultTime {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin: 0.5rem 0 1rem;
+}
+
+#nicknameForm {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  cursor: default;
+}
+
+#nicknameInput {
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: none;
+  font-size: 1rem;
+}
+
+#nicknameForm button {
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: none;
+  background: #0b3d91;
+  color: #fff;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+#saveStatus {
+  margin-top: 8px;
+  min-height: 1.2em;
+}
+
+#leaderboard {
+  margin-top: 1.5rem;
+  text-align: left;
+  cursor: default;
+}
+
+#leaderboard h2 {
+  font-size: 1.1rem;
+  text-align: center;
+}
+
+#leaderboardList {
+  padding-left: 1.2rem;
+}
+
+#leaderboardList li {
+  margin-bottom: 2px;
+}
