@@ -13,10 +13,11 @@ import { firebaseConfig } from "./firebase-config.js";
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-// 이전 반응속도 게임의 기록(scores)과 섞이지 않도록 별도 컬렉션을 사용한다.
-const scoresRef = collection(db, "target_scores");
+// 목표 시각이 7.77초 -> 7.77777초로 바뀌어 이전 target_scores 기록과 호환되지 않으므로
+// 새 컬렉션을 사용한다(사실상 랭킹 초기화).
+const scoresRef = collection(db, "target_scores_v2");
 
-// 목표 시각(7.77초)과의 차이(ms)와 닉네임을 Firestore에 저장한다.
+// 목표 시각(7.77777초)과의 차이(ms)와 닉네임을 Firestore에 저장한다.
 export async function saveScore(ms, nickname) {
   await addDoc(scoresRef, {
     ms,
