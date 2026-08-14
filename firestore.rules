@@ -1,0 +1,22 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /scores/{scoreId} {
+      // 랭킹 조회는 누구나 가능 (단순 오픈)
+      allow read: if true;
+
+      // 기록 생성은 형식만 검증하고 허용 (단순 오픈)
+      allow create: if request.resource.data.keys().hasOnly(['ms', 'nickname', 'createdAt'])
+                    && request.resource.data.ms is number
+                    && request.resource.data.ms > 0
+                    && request.resource.data.ms < 20000
+                    && request.resource.data.nickname is string
+                    && request.resource.data.nickname.size() > 0
+                    && request.resource.data.nickname.size() <= 20;
+
+      // 저장된 기록의 수정/삭제는 금지
+      allow update, delete: if false;
+    }
+  }
+}
