@@ -39,15 +39,11 @@ h1 {
 }
 
 .state-idle,
-.state-waiting {
+.state-running {
   background-color: #1e63e0;
 }
 
-.state-ready {
-  background-color: #e02b2b;
-}
-
-.state-too-early {
+.state-gameover {
   background-color: #e08a1e;
 }
 
@@ -57,6 +53,13 @@ h1 {
 
 .hidden {
   display: none;
+}
+
+#timerDisplay {
+  font-size: 3rem;
+  font-weight: bold;
+  font-variant-numeric: tabular-nums;
+  margin: 0.5rem 0;
 }
 
 #resultTime {

@@ -2,17 +2,17 @@ import { saveScore, getTop } from "./firebase.js";
 
 const STATE = {
   IDLE: "idle",
-  WAITING: "waiting",
-  READY: "ready",
-  TOO_EARLY: "too-early",
+  RUNNING: "running",
+  GAME_OVER: "gameover",
   RESULT: "result",
 };
 
-const MIN_DELAY_MS = 1000;
-const MAX_DELAY_MS = 12000;
+const TARGET_MS = 7770;
+const MAX_MS = 10000;
 
 const gameEl = document.getElementById("game");
 const messageEl = document.getElementById("message");
+const timerDisplayEl = document.getElementById("timerDisplay");
 const resultBox = document.getElementById("resultBox");
 const resultTimeEl = document.getElementById("resultTime");
 const nicknameForm = document.getElementById("nicknameForm");
@@ -22,8 +22,9 @@ const leaderboard = document.getElementById("leaderboard");
 const leaderboardList = document.getElementById("leaderboardList");
 
 let state = STATE.IDLE;
-let timeoutId = null;
-let readyAt = 0;
+let startedAt = 0;
+let rafId = null;
+let gameOverTimeoutId = null;
 let lastMs = null;
 
 function setState(next) {
@@ -31,10 +32,18 @@ function setState(next) {
   gameEl.className = "screen state-" + next;
 }
 
-function clearTimer() {
-  if (timeoutId !== null) {
-    clearTimeout(timeoutId);
-    timeoutId = null;
+function formatSeconds(ms) {
+  return (ms / 1000).toFixed(3) + "초";
+}
+
+function clearTimers() {
+  if (rafId !== null) {
+    cancelAnimationFrame(rafId);
+    rafId = null;
+  }
+  if (gameOverTimeoutId !== null) {
+    clearTimeout(gameOverTimeoutId);
+    gameOverTimeoutId = null;
   }
 }
 
@@ -46,38 +55,50 @@ function resetResultUI() {
 }
 
 function toIdle() {
-  clearTimer();
+  clearTimers();
   resetResultUI();
+  timerDisplayEl.classList.add("hidden");
   setState(STATE.IDLE);
-  messageEl.textContent = "화면을 클릭하면 시작합니다";
+  messageEl.textContent = "클릭하면 타이머가 시작됩니다. 7.77초에 최대한 가깝게 다시 클릭해 멈추세요.";
 }
 
-function startWaiting() {
+function tick() {
+  const elapsed = performance.now() - startedAt;
+  timerDisplayEl.textContent = formatSeconds(Math.min(elapsed, MAX_MS));
+  rafId = requestAnimationFrame(tick);
+}
+
+function startRunning() {
   resetResultUI();
-  setState(STATE.WAITING);
-  messageEl.textContent = "빨간색으로 바뀔 때까지 기다리세요...";
+  setState(STATE.RUNNING);
+  messageEl.textContent = "지금 클릭해서 7.77초에 맞춰 멈추세요!";
+  timerDisplayEl.classList.remove("hidden");
+  timerDisplayEl.textContent = formatSeconds(0);
 
-  const delay = MIN_DELAY_MS + Math.random() * (MAX_DELAY_MS - MIN_DELAY_MS);
-  timeoutId = setTimeout(() => {
-    timeoutId = null;
-    readyAt = performance.now();
-    setState(STATE.READY);
-    messageEl.textContent = "지금 클릭하세요!";
-  }, delay);
+  startedAt = performance.now();
+  rafId = requestAnimationFrame(tick);
+  gameOverTimeoutId = setTimeout(() => {
+    gameOverTimeoutId = null;
+    showGameOver();
+  }, MAX_MS);
 }
 
-function showTooEarly() {
-  clearTimer();
-  setState(STATE.TOO_EARLY);
-  messageEl.textContent = "너무 빨랐습니다! 다시 시도하려면 클릭하세요.";
+function showGameOver() {
+  clearTimers();
+  setState(STATE.GAME_OVER);
+  timerDisplayEl.textContent = formatSeconds(MAX_MS);
+  messageEl.textContent = "10초가 지났습니다. 게임 오버! 다시 시도하려면 클릭하세요.";
 }
 
-async function showResult() {
-  const ms = Math.round(performance.now() - readyAt);
-  lastMs = ms;
+async function showResult(elapsedMs) {
+  clearTimers();
+  const diffMs = Math.round(Math.abs(elapsedMs - TARGET_MS));
+  lastMs = diffMs;
+
   setState(STATE.RESULT);
   messageEl.textContent = "";
-  resultTimeEl.textContent = `${ms} ms`;
+  timerDisplayEl.classList.add("hidden");
+  resultTimeEl.textContent = `${formatSeconds(elapsedMs)} (7.77초와 ${(diffMs / 1000).toFixed(3)}초 차이)`;
   resultBox.classList.remove("hidden");
   await renderLeaderboard();
 }
@@ -94,7 +115,7 @@ async function renderLeaderboard() {
     leaderboardList.innerHTML = "";
     top.forEach((entry) => {
       const li = document.createElement("li");
-      li.textContent = `${entry.nickname} - ${entry.ms}ms`;
+      li.textContent = `${entry.nickname} - ${(entry.ms / 1000).toFixed(3)}초 차이`;
       leaderboardList.appendChild(li);
     });
   } catch (err) {
@@ -108,15 +129,18 @@ gameEl.addEventListener("click", (event) => {
 
   switch (state) {
     case STATE.IDLE:
-      startWaiting();
+      startRunning();
       break;
-    case STATE.WAITING:
-      showTooEarly();
+    case STATE.RUNNING: {
+      const elapsed = performance.now() - startedAt;
+      if (elapsed >= MAX_MS) {
+        showGameOver();
+      } else {
+        showResult(elapsed);
+      }
       break;
-    case STATE.READY:
-      showResult();
-      break;
-    case STATE.TOO_EARLY:
+    }
+    case STATE.GAME_OVER:
     case STATE.RESULT:
       toIdle();
       break;
